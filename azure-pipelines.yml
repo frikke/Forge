@@ -41,6 +41,8 @@ extends:
           displayName: 'NuGet restore'
           inputs:
             restoreSolution: '$(Build.SourcesDirectory)\Forge.sln'
+            feedsToUse: config
+            nugetConfigPath: '$(Build.SourcesDirectory)/nuget.config'
             
         - task: VSBuild@1
           displayName: 'Build .NET sln for tests'
