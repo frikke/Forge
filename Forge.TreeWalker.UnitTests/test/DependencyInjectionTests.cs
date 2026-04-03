@@ -185,7 +185,7 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
         [TestMethod]
         public async Task TestDefaultFactory_IsUsedWhenNoServiceProviderOrFactorySet()
         {
-            // Test - When neither ServiceProvider nor ActionFactory is set, DefaultForgeActionFactory is used.
+            // Test - When ActionFactory is not set, DefaultForgeActionFactory is used.
             //        Actions requiring DI dependencies will fail because Activator.CreateInstance cannot resolve them.
             var session = CreateSession(SingleDependencySchema);
 

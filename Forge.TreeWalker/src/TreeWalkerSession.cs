@@ -18,7 +18,6 @@ namespace Microsoft.Forge.TreeWalker
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.IO;
     using System.Reflection;
     using System.Text.RegularExpressions;
     using System.Threading;
@@ -912,8 +911,7 @@ namespace Microsoft.Forge.TreeWalker
                 this.Parameters.RootSessionId
             );
 
-            // Native actions (e.g. SubroutineAction) require TreeWalkerParameters. Handle them here so that
-            // custom IForgeActionFactory implementations do not need to know about this internal concern.
+            //Create the action object using the ActionFactory and kick off the action task.
             BaseAction actionObject = this.Parameters.ActionFactory.CreateAction(actionDefinition.ActionType, this.Parameters);
 
             MethodInfo method = typeof(BaseAction).GetMethod("RunAction");

@@ -19,7 +19,6 @@ namespace Microsoft.Forge.TreeWalker
     {
         /// <summary>
         /// Creates an instance of the specified ForgeAction type using Activator.CreateInstance.
-        /// Native actions such as SubroutineAction are handled by the TreeWalkerSession before this factory is called.
         /// </summary>
         /// <param name="actionType">The Type of the ForgeAction class to instantiate.</param>
         /// <param name="parameters">The TreeWalkerParameters for the current session.</param>

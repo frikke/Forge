@@ -14,9 +14,6 @@ namespace Microsoft.Forge.TreeWalker
     /// <summary>
     /// An <see cref="IForgeActionFactory"/> implementation that resolves ForgeAction instances
     /// from an <see cref="IServiceProvider"/> backed by Microsoft.Extensions.DependencyInjection.
-    /// 
-    /// Native actions such as <see cref="SubroutineAction"/> are handled by the TreeWalkerSession
-    /// before this factory is called, so custom factories do not need to know about them.
     /// </summary>
     public class ServiceProviderActionFactory : IForgeActionFactory
     {
@@ -33,8 +30,6 @@ namespace Microsoft.Forge.TreeWalker
 
         /// <summary>
         /// Creates an instance of the specified ForgeAction type by resolving it from the service provider.
-        /// Native actions such as <see cref="SubroutineAction"/> are handled by the TreeWalkerSession
-        /// before this factory is called.
         /// </summary>
         /// <param name="actionType">The Type of the ForgeAction class to instantiate.</param>
         /// <param name="parameters">The TreeWalkerParameters for the current session.</param>
