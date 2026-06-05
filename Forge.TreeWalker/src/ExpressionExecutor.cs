@@ -80,7 +80,7 @@ namespace Microsoft.Forge.TreeWalker
                 UserContext = userContext,
                 Session = session,
                 TreeInput = treeInput,
-                Cache = null
+                Cache = new Newtonsoft.Json.Linq.JObject()
             };
 
             this.scriptCache = scriptCache ?? new ConcurrentDictionary<string, Script<object>>();
@@ -164,7 +164,8 @@ namespace Microsoft.Forge.TreeWalker
                 Assembly mscorlib = typeof(object).Assembly;
                 Assembly systemCore = typeof(System.Linq.Enumerable).Assembly;
                 Assembly cSharpAssembly = typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly;
-                scriptOptions = scriptOptions.AddReferences(mscorlib, systemCore, cSharpAssembly);
+                Assembly jsonAssembly = typeof(Newtonsoft.Json.Linq.JObject).Assembly;
+                scriptOptions = scriptOptions.AddReferences(mscorlib, systemCore, cSharpAssembly, jsonAssembly);
 
                 // Add required namespaces.
                 scriptOptions = scriptOptions.AddImports(
@@ -228,11 +229,11 @@ namespace Microsoft.Forge.TreeWalker
         }
 
         /// <summary>
-        /// Clears the Cache, resetting it to null for the next node visit.
+        /// Clears the Cache, resetting it to an empty JObject for the next node visit.
         /// </summary>
         public void ClearCache()
         {
-            this.parameters.Cache = null;
+            this.parameters.Cache = new Newtonsoft.Json.Linq.JObject();
         }
 
         /// <summary>
