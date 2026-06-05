@@ -13,7 +13,6 @@ namespace Microsoft.Forge.TreeWalker
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using System.Dynamic;
     using System.Reflection;
     using System.Threading.Tasks;
     using Microsoft.CodeAnalysis;
@@ -81,7 +80,7 @@ namespace Microsoft.Forge.TreeWalker
                 UserContext = userContext,
                 Session = session,
                 TreeInput = treeInput,
-                Cache = new System.Dynamic.ExpandoObject()
+                Cache = null
             };
 
             this.scriptCache = scriptCache ?? new ConcurrentDictionary<string, Script<object>>();
@@ -211,20 +210,29 @@ namespace Microsoft.Forge.TreeWalker
         }
 
         /// <summary>
-        /// Gets the Cache dictionary (the underlying IDictionary of the ExpandoObject).
+        /// Gets the Cache object (a JObject with evaluated CacheVariable values, or null).
         /// </summary>
-        /// <returns>The cache dictionary.</returns>
-        public IDictionary<string, object> GetCache()
+        /// <returns>The cache object.</returns>
+        public dynamic GetCache()
         {
-            return (IDictionary<string, object>)this.parameters.Cache;
+            return this.parameters.Cache;
         }
 
         /// <summary>
-        /// Clears the Cache ExpandoObject, removing all node-scoped variables.
+        /// Sets the Cache object to the evaluated CacheVariables result.
+        /// </summary>
+        /// <param name="cache">The evaluated cache object (typically a JObject from EvaluateDynamicProperty).</param>
+        public void SetCache(object cache)
+        {
+            this.parameters.Cache = cache;
+        }
+
+        /// <summary>
+        /// Clears the Cache, resetting it to null for the next node visit.
         /// </summary>
         public void ClearCache()
         {
-            ((IDictionary<string, object>)this.parameters.Cache).Clear();
+            this.parameters.Cache = null;
         }
 
         /// <summary>

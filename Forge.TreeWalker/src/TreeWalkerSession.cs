@@ -290,8 +290,13 @@ namespace Microsoft.Forge.TreeWalker
         /// <returns>The cached value if it exists, otherwise null.</returns>
         public object GetCache(string name)
         {
-            IDictionary<string, object> cache = this.expressionExecutor.GetCache();
-            return cache.TryGetValue(name, out object value) ? value : null;
+            dynamic cache = this.expressionExecutor.GetCache();
+            if (cache == null)
+            {
+                return null;
+            }
+
+            return cache[name];
         }
 
         /// <summary>
@@ -447,10 +452,6 @@ namespace Microsoft.Forge.TreeWalker
             {
                 this.Status = "Failed_EvaluateDynamicProperty";
             }
-            catch (CacheVariableException)
-            {
-                this.Status = "Failed_CacheVariable";
-            }
             catch (ActionNotFoundException)
             {
                 this.Status = "Failed_ActionNotFound";
@@ -475,10 +476,6 @@ namespace Microsoft.Forge.TreeWalker
             catch (NoChildMatchedException)
             {
                 // For now, suppressing this exception so that its treated as successful end stage.
-            }
-            catch (CacheVariableException)
-            {
-                // Status already set to Failed_CacheVariable above. Suppress re-throw.
             }
 
             return this.Status;
@@ -531,8 +528,10 @@ namespace Microsoft.Forge.TreeWalker
                 }
             }
 
-            // Resolve CacheVariables after actions complete, before selecting child.
-            await this.ResolveCacheVariables(treeNode, treeNodeKey).ConfigureAwait(false);
+            // Evaluate CacheVariables after actions complete, before selecting child.
+            // Uses the same EvaluateDynamicProperty pattern as Properties/Input.
+            object cacheResult = await this.EvaluateDynamicProperty(treeNode.CacheVariables, null).ConfigureAwait(false);
+            this.expressionExecutor.SetCache(cacheResult);
 
             if (treeNode.Type == TreeNodeType.Leaf)
             {
@@ -1282,45 +1281,6 @@ namespace Microsoft.Forge.TreeWalker
                                 "The given type: {0} must implement the BaseAction abstract class in order to apply the ForgeActionAttribute.",
                                 type.ToString()));
                     }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Resolves CacheVariables defined on the TreeNode.
-        /// Each expression is evaluated via EvaluateDynamicProperty and the result is set on the Cache ExpandoObject.
-        /// Called after actions complete and before SelectChild.
-        /// </summary>
-        /// <param name="treeNode">The current TreeNode.</param>
-        /// <param name="treeNodeKey">The current TreeNode key (for error messages).</param>
-        private async Task ResolveCacheVariables(TreeNode treeNode, string treeNodeKey)
-        {
-            if (treeNode.CacheVariables == null || treeNode.CacheVariables.Count == 0)
-            {
-                return;
-            }
-
-            IDictionary<string, object> cache = this.expressionExecutor.GetCache();
-
-            foreach (KeyValuePair<string, string> binding in treeNode.CacheVariables)
-            {
-                string varName = binding.Key;
-                string expression = binding.Value;
-
-                try
-                {
-                    object result = await this.EvaluateDynamicProperty(expression, null).ConfigureAwait(false);
-                    cache[varName] = result;
-                }
-                catch (Exception e)
-                {
-                    throw new CacheVariableException(
-                        string.Format(
-                            "Failed to resolve cache variable. TreeNodeKey: {0}, Variable: {1}, Expression: {2}.",
-                            treeNodeKey,
-                            varName,
-                            expression),
-                        e);
                 }
             }
         }

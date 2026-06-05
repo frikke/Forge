@@ -1402,13 +1402,16 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
         }
 
         [TestMethod]
-        public void TestCacheVariables_InvalidExpression_ThrowsCacheVariableException()
+        public void TestCacheVariables_InvalidExpression_ThrowsEvaluateDynamicPropertyException()
         {
-            // Test - Invalid CacheVariable expression throws CacheVariableException, status is Failed_CacheVariable.
+            // Test - Invalid CacheVariable expression throws EvaluateDynamicPropertyException, status is Failed_EvaluateDynamicProperty.
             this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_InvalidExpression);
 
-            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
-            Assert.AreEqual("Failed_CacheVariable", actualStatus);
+            Assert.ThrowsException<EvaluateDynamicPropertyException>(() =>
+            {
+                this.session.WalkTree("Root").GetAwaiter().GetResult();
+            });
+            Assert.AreEqual("Failed_EvaluateDynamicProperty", this.session.Status);
         }
 
         [TestMethod]

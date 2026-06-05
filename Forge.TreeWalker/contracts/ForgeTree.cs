@@ -59,15 +59,14 @@ namespace Microsoft.Forge.DataContracts
         public ChildSelector[] ChildSelector { get; private set; }
 
         /// <summary>
-        /// Optional cache variables that evaluate Roslyn expressions after actions complete
-        /// and bind results to named variables for use in ShouldSelect expressions.
-        /// The key is the variable name accessible via Cache in Roslyn expressions (e.g., "Cache.myVar").
-        /// The value is an expression evaluated via EvaluateDynamicProperty
+        /// Optional cache variables that are evaluated via EvaluateDynamicProperty after actions complete
+        /// and made available in ShouldSelect expressions via the Cache object (e.g., "Cache.myVar").
+        /// Each property key is the variable name, and the value is an expression
         /// (e.g., "C#|Session.GetOutput(\"ActionKey\").Output.PropertyName").
         /// Cache variables are scoped to the current node only — they are cleared when moving to the next node.
         /// </summary>
         [DataMember]
-        public Dictionary<string, string> CacheVariables { get; set; }
+        public dynamic CacheVariables { get; set; }
 
         #region Properties used only by TreeNodeType.Action nodes
 
