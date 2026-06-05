@@ -737,7 +737,7 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
             }";
 
         /// <summary>
-        /// CacheVariables with invalid expression — should throw CacheVariableException.
+        /// CacheVariables with invalid expression — should throw EvaluateDynamicPropertyException.
         /// </summary>
         public const string CacheVariables_InvalidExpression = @"
             {

@@ -296,7 +296,18 @@ namespace Microsoft.Forge.TreeWalker
                 return null;
             }
 
-            return cache[name];
+            // JObject returns null for missing keys via indexer; handle other types safely.
+            if (cache is Newtonsoft.Json.Linq.JObject jObj)
+            {
+                return jObj.TryGetValue(name, out Newtonsoft.Json.Linq.JToken token) ? token : null;
+            }
+
+            if (cache is IDictionary<string, object> dict)
+            {
+                return dict.TryGetValue(name, out object value) ? value : null;
+            }
+
+            return null;
         }
 
         /// <summary>

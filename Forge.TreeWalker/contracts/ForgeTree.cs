@@ -66,7 +66,7 @@ namespace Microsoft.Forge.DataContracts
         /// Cache variables are scoped to the current node only — they are cleared when moving to the next node.
         /// </summary>
         [DataMember]
-        public dynamic CacheVariables { get; set; }
+        public dynamic CacheVariables { get; private set; }
 
         #region Properties used only by TreeNodeType.Action nodes
 
