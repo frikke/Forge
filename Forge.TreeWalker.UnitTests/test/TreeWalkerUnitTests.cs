@@ -1346,5 +1346,129 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
 
             return new TreeWalkerSession(subroutineParameters);
         }
+
+        #region CacheVariables
+
+        [TestMethod]
+        public void TestCacheVariables_StaticExpression()
+        {
+            // Test - CacheVariables with a static Roslyn expression binds value available in ShouldSelect.
+            this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_StaticExpression);
+
+            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
+            Assert.AreEqual("RanToCompletion", actualStatus);
+
+            string currentNode = this.session.GetCurrentTreeNode().GetAwaiter().GetResult();
+            Assert.AreEqual("CorrectValue", currentNode, "Expected Cache.myVal == 42 to route to CorrectValue.");
+        }
+
+        [TestMethod]
+        public void TestCacheVariables_SessionGetOutput()
+        {
+            // Test - CacheVariables can reference Session.GetOutput to extract ActionResponse data.
+            this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_SessionGetOutput);
+
+            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
+            Assert.AreEqual("RanToCompletion", actualStatus);
+
+            string currentNode = this.session.GetCurrentTreeNode().GetAwaiter().GetResult();
+            Assert.AreEqual("Found", currentNode, "Expected Cache.actionStatus == 'Success'.");
+        }
+
+        [TestMethod]
+        public void TestCacheVariables_UserContext()
+        {
+            // Test - CacheVariables can bind UserContext properties.
+            this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_UserContext);
+
+            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
+            Assert.AreEqual("RanToCompletion", actualStatus);
+
+            string currentNode = this.session.GetCurrentTreeNode().GetAwaiter().GetResult();
+            Assert.AreEqual("Found", currentNode, "Expected Cache.userName == 'MyName'.");
+        }
+
+        [TestMethod]
+        public void TestCacheVariables_NodeScoped_ClearedBetweenNodes()
+        {
+            // Test - CacheVariables are scoped to the current node only. Second node should not see first node's vars.
+            this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_NodeScoped);
+
+            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
+            Assert.AreEqual("RanToCompletion", actualStatus);
+
+            string currentNode = this.session.GetCurrentTreeNode().GetAwaiter().GetResult();
+            Assert.AreEqual("Isolated", currentNode, "Expected Cache to be cleared between nodes.");
+        }
+
+        [TestMethod]
+        public void TestCacheVariables_InvalidExpression_ThrowsCacheVariableException()
+        {
+            // Test - Invalid CacheVariable expression throws CacheVariableException, status is Failed_CacheVariable.
+            this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_InvalidExpression);
+
+            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
+            Assert.AreEqual("Failed_CacheVariable", actualStatus);
+        }
+
+        [TestMethod]
+        public void TestCacheVariables_MultipleCacheVariables()
+        {
+            // Test - Multiple CacheVariables on the same node all resolve correctly.
+            this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_Multiple);
+
+            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
+            Assert.AreEqual("RanToCompletion", actualStatus);
+
+            string currentNode = this.session.GetCurrentTreeNode().GetAwaiter().GetResult();
+            Assert.AreEqual("Found", currentNode, "Expected all three cache variables to resolve.");
+        }
+
+        [TestMethod]
+        public void TestCacheVariables_StringLiteral()
+        {
+            // Test - CacheVariables with a non-Roslyn string literal value.
+            this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_StringLiteral);
+
+            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
+            Assert.AreEqual("RanToCompletion", actualStatus);
+
+            string currentNode = this.session.GetCurrentTreeNode().GetAwaiter().GetResult();
+            Assert.AreEqual("Found", currentNode, "Expected string literal to be accessible as Cache.literal.");
+        }
+
+        [TestMethod]
+        public void TestCacheVariables_GetCacheApi()
+        {
+            // Test - Session.GetCache() API works in Roslyn expressions.
+            this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_GetCacheApi);
+
+            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
+            Assert.AreEqual("RanToCompletion", actualStatus);
+
+            string currentNode = this.session.GetCurrentTreeNode().GetAwaiter().GetResult();
+            Assert.AreEqual("Found", currentNode, "Expected Session.GetCache to return the cached value.");
+        }
+
+        [TestMethod]
+        public void TestCacheVariables_BackwardCompat_NoCacheVariables()
+        {
+            // Test - Schemas without CacheVariables work identically (backward compat).
+            this.TestFromFileInitialize(filePath: TardigradeSchemaPath);
+
+            string actualStatus = this.session.WalkTree("Root").GetAwaiter().GetResult();
+            Assert.AreEqual("RanToCompletion", actualStatus);
+        }
+
+        [TestMethod]
+        public void TestCacheVariables_GetCacheReturnsNullForMissing()
+        {
+            // Test - GetCache returns null for non-existent cache variable.
+            this.TestInitialize(jsonSchema: ForgeSchemaHelper.CacheVariables_StaticExpression);
+
+            Assert.IsNull(this.session.GetCache("nonExistent"), "Expected GetCache to return null for missing variable.");
+        }
+
+        #endregion CacheVariables
     }
 }

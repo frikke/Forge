@@ -50,6 +50,12 @@
                 },
                 "Properties": {
                     "type": "object"
+                },
+                "CacheVariables": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": { "type": "string" }
+                    }
                 }
             },
             "additionalProperties": false,
@@ -95,6 +101,12 @@
                 },
                 "Properties": {
                     "type": "object"
+                },
+                "CacheVariables": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": { "type": "string" }
+                    }
                 }
             },
             "additionalProperties": false,
@@ -156,6 +168,12 @@
                 },
                 "Properties": {
                     "type": "object"
+                },
+                "CacheVariables": {
+                    "type": "object",
+                    "patternProperties": {
+                        ".*": { "type": "string" }
+                    }
                 }
             },
             "additionalProperties": false,

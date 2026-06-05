@@ -46,5 +46,13 @@ namespace Microsoft.Forge.TreeWalker
         /// Gets the string context if the actions in the current tree node were skipped, or null if actions were not skipped.
         /// </summary>
         string GetCurrentNodeSkipActionContext();
+
+        /// <summary>
+        /// Gets the value of a node-scoped cache variable by name.
+        /// Cache variables are populated from CacheVariables expressions after actions complete.
+        /// </summary>
+        /// <param name="name">The variable name as defined in CacheVariables.</param>
+        /// <returns>The cached value if it exists, otherwise null.</returns>
+        object GetCache(string name);
     }
 }

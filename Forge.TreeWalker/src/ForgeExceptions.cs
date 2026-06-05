@@ -90,4 +90,29 @@ namespace Microsoft.Forge.TreeWalker.ForgeExceptions
         {
         }
     }
+
+    /// <summary>
+    /// Exception thrown when a CacheVariable expression fails to evaluate.
+    /// </summary>
+    public class CacheVariableException : Exception
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CacheVariableException"/> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public CacheVariableException(string message)
+            : base(message)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CacheVariableException"/> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="inner">The inner exception.</param>
+        public CacheVariableException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
 }

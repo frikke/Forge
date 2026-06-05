@@ -13,6 +13,7 @@ namespace Microsoft.Forge.TreeWalker
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Collections.Immutable;
+    using System.Dynamic;
     using System.Reflection;
     using System.Threading.Tasks;
     using Microsoft.CodeAnalysis;
@@ -79,7 +80,8 @@ namespace Microsoft.Forge.TreeWalker
             {
                 UserContext = userContext,
                 Session = session,
-                TreeInput = treeInput
+                TreeInput = treeInput,
+                Cache = new System.Dynamic.ExpandoObject()
             };
 
             this.scriptCache = scriptCache ?? new ConcurrentDictionary<string, Script<object>>();
@@ -209,6 +211,23 @@ namespace Microsoft.Forge.TreeWalker
         }
 
         /// <summary>
+        /// Gets the Cache dictionary (the underlying IDictionary of the ExpandoObject).
+        /// </summary>
+        /// <returns>The cache dictionary.</returns>
+        public IDictionary<string, object> GetCache()
+        {
+            return (IDictionary<string, object>)this.parameters.Cache;
+        }
+
+        /// <summary>
+        /// Clears the Cache ExpandoObject, removing all node-scoped variables.
+        /// </summary>
+        public void ClearCache()
+        {
+            ((IDictionary<string, object>)this.parameters.Cache).Clear();
+        }
+
+        /// <summary>
         /// This class defines the global parameter that will be passed into the Roslyn expression evaluator.
         /// 
         /// TODO: When Creating a Roslyn Script, the entire Assembly that the passed in GlobalsType resides in gets loaded.
@@ -232,6 +251,13 @@ namespace Microsoft.Forge.TreeWalker
             /// For Subroutines, this is evaluated from the SubroutineInput on the schema.
             /// </summary>
             public dynamic TreeInput { get; set; }
+
+            /// <summary>
+            /// The dynamic Cache object that holds node-scoped CacheVariables.
+            /// Variables are set after actions complete and are available in ShouldSelect expressions.
+            /// Cache is cleared at the start of each node visit.
+            /// </summary>
+            public dynamic Cache { get; set; }
         }
 
         /// <summary>
