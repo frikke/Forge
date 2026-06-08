@@ -63,10 +63,10 @@ namespace Microsoft.Forge.DataContracts
         /// and made available in ShouldSelect expressions via the Cache object (e.g., "Cache.myVar").
         /// Each property key is the variable name, and the value is an expression
         /// (e.g., "C#|Session.GetOutput(\"ActionKey\").Output.PropertyName").
-        /// Cache variables are scoped to the current node only — they are cleared when moving to the next node.
+        /// Cache variables are scoped to the current node only — they are cleared after SelectChild.
         /// </summary>
         [DataMember]
-        public dynamic CacheVariables { get; private set; }
+        public dynamic CacheVars { get; private set; }
 
         #region Properties used only by TreeNodeType.Action nodes
 

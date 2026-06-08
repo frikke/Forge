@@ -80,7 +80,7 @@ namespace Microsoft.Forge.TreeWalker
                 UserContext = userContext,
                 Session = session,
                 TreeInput = treeInput,
-                Cache = new Newtonsoft.Json.Linq.JObject()
+                Cache = null
             };
 
             this.scriptCache = scriptCache ?? new ConcurrentDictionary<string, Script<object>>();
@@ -164,8 +164,7 @@ namespace Microsoft.Forge.TreeWalker
                 Assembly mscorlib = typeof(object).Assembly;
                 Assembly systemCore = typeof(System.Linq.Enumerable).Assembly;
                 Assembly cSharpAssembly = typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly;
-                Assembly jsonAssembly = typeof(Newtonsoft.Json.Linq.JObject).Assembly;
-                scriptOptions = scriptOptions.AddReferences(mscorlib, systemCore, cSharpAssembly, jsonAssembly);
+                scriptOptions = scriptOptions.AddReferences(mscorlib, systemCore, cSharpAssembly);
 
                 // Add required namespaces.
                 scriptOptions = scriptOptions.AddImports(
@@ -211,29 +210,29 @@ namespace Microsoft.Forge.TreeWalker
         }
 
         /// <summary>
-        /// Gets the Cache object (a JObject with evaluated CacheVariable values, or null).
+        /// Gets the Cache object (the evaluated CacheVars result, or null).
         /// </summary>
         /// <returns>The cache object.</returns>
-        public dynamic GetCache()
+        public object GetCache()
         {
             return this.parameters.Cache;
         }
 
         /// <summary>
-        /// Sets the Cache object to the evaluated CacheVariables result.
+        /// Sets the Cache object to the evaluated CacheVars result.
         /// </summary>
-        /// <param name="cache">The evaluated cache object (typically a JObject from EvaluateDynamicProperty).</param>
+        /// <param name="cache">The evaluated cache object from EvaluateDynamicProperty.</param>
         public void SetCache(object cache)
         {
             this.parameters.Cache = cache;
         }
 
         /// <summary>
-        /// Clears the Cache, resetting it to an empty JObject for the next node visit.
+        /// Clears the Cache, resetting it to null for the next node visit.
         /// </summary>
         public void ClearCache()
         {
-            this.parameters.Cache = new Newtonsoft.Json.Linq.JObject();
+            this.parameters.Cache = null;
         }
 
         /// <summary>
@@ -262,9 +261,9 @@ namespace Microsoft.Forge.TreeWalker
             public dynamic TreeInput { get; set; }
 
             /// <summary>
-            /// The dynamic Cache object that holds node-scoped CacheVariables.
+            /// The dynamic Cache object that holds node-scoped CacheVars.
             /// Variables are set after actions complete and are available in ShouldSelect expressions.
-            /// Cache is cleared at the start of each node visit.
+            /// Cache is cleared after SelectChild.
             /// </summary>
             public dynamic Cache { get; set; }
         }

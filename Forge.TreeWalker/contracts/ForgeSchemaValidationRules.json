@@ -51,7 +51,7 @@
                 "Properties": {
                     "type": "object"
                 },
-                "CacheVariables": {
+                "CacheVars": {
                     "type": "object",
                     "patternProperties": {
                         ".*": { "type": "string" }
@@ -102,7 +102,7 @@
                 "Properties": {
                     "type": "object"
                 },
-                "CacheVariables": {
+                "CacheVars": {
                     "type": "object",
                     "patternProperties": {
                         ".*": { "type": "string" }
@@ -169,7 +169,7 @@
                 "Properties": {
                     "type": "object"
                 },
-                "CacheVariables": {
+                "CacheVars": {
                     "type": "object",
                     "patternProperties": {
                         ".*": { "type": "string" }

@@ -283,31 +283,14 @@ namespace Microsoft.Forge.TreeWalker
         }
 
         /// <summary>
-        /// Gets the value of a node-scoped cache variable by name.
-        /// Cache variables are populated from CacheVariables expressions after actions complete.
+        /// Evaluates the given CacheVars schema object and sets the result on the Cache.
+        /// This is useful for external UTs that need to pre-fill the Cache before evaluating ShouldSelect expressions.
         /// </summary>
-        /// <param name="name">The variable name as defined in CacheVariables.</param>
-        /// <returns>The cached value if it exists, otherwise null.</returns>
-        public object GetCache(string name)
+        /// <param name="cacheVars">The CacheVars schema object to evaluate (typically from TreeNode.CacheVars).</param>
+        public async Task SetCache(dynamic cacheVars)
         {
-            dynamic cache = this.expressionExecutor.GetCache();
-            if (cache == null)
-            {
-                return null;
-            }
-
-            // JObject returns null for missing keys via indexer; handle other types safely.
-            if (cache is Newtonsoft.Json.Linq.JObject jObj)
-            {
-                return jObj.TryGetValue(name, out Newtonsoft.Json.Linq.JToken token) ? token : null;
-            }
-
-            if (cache is IDictionary<string, object> dict)
-            {
-                return dict.TryGetValue(name, out object value) ? value : null;
-            }
-
-            return null;
+            object cacheResult = await this.EvaluateDynamicProperty(cacheVars, null).ConfigureAwait(false);
+            this.expressionExecutor.SetCache(cacheResult);
         }
 
         /// <summary>
@@ -505,9 +488,6 @@ namespace Microsoft.Forge.TreeWalker
         {
             TreeNode treeNode = this.Schema.Tree[treeNodeKey];
 
-            // Clear node-scoped cache variables at the start of each node visit.
-            this.expressionExecutor.ClearCache();
-
             if (string.IsNullOrWhiteSpace(this.currentNodeSkipActionContext))
             {
                 // Do not skip actions when this.currentNodeSkipActionContext is null or whitespace.
@@ -539,19 +519,23 @@ namespace Microsoft.Forge.TreeWalker
                 }
             }
 
-            // Evaluate CacheVariables after actions complete, before selecting child.
-            // Uses the same EvaluateDynamicProperty pattern as Properties/Input.
-            object cacheResult = await this.EvaluateDynamicProperty(treeNode.CacheVariables, null).ConfigureAwait(false);
-            this.expressionExecutor.SetCache(cacheResult);
-
             if (treeNode.Type == TreeNodeType.Leaf)
             {
                 // Leaf type can't have ChildSelector so we return here.
                 return null;
             }
 
-            // Return next child to visit, if possible.
-            return await this.SelectChild(treeNode).ConfigureAwait(false);
+            // Evaluate CacheVars after actions complete, before selecting child.
+            // Uses the same EvaluateDynamicProperty pattern as Properties/Input.
+            await this.SetCache(treeNode.CacheVars).ConfigureAwait(false);
+
+            // Select next child to visit.
+            string result = await this.SelectChild(treeNode).ConfigureAwait(false);
+
+            // Clear Cache after SelectChild — locks Cache access to ShouldSelect only.
+            this.expressionExecutor.ClearCache();
+
+            return result;
         }
 
         /// <summary>

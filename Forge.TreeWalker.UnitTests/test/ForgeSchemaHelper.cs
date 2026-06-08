@@ -571,25 +571,17 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
             }
         ";
 
-        #region CacheVariables Schemas
+        #region CacheVars Schemas
 
         /// <summary>
-        /// Basic CacheVariables test — static Roslyn expression evaluated after action, used in ShouldSelect.
+        /// Basic CacheVars test — static Roslyn expression used in ShouldSelect.
         /// </summary>
-        public const string CacheVariables_StaticExpression = @"
+        public const string CacheVars_StaticExpression = @"
             {
                 ""Tree"": {
                     ""Root"": {
-                        ""Type"": ""Action"",
-                        ""Actions"": {
-                            ""Root_CollectDiagnosticsAction"": {
-                                ""Action"": ""CollectDiagnosticsAction"",
-                                ""Input"": {
-                                    ""Command"": ""TheCommand""
-                                }
-                            }
-                        },
-                        ""CacheVariables"": {
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
                             ""myVal"": ""C#|42""
                         },
                         ""ChildSelector"": [
@@ -612,9 +604,9 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
             }";
 
         /// <summary>
-        /// CacheVariables referencing Session.GetOutput to extract ActionResponse data.
+        /// CacheVars referencing Session.GetOutput to extract ActionResponse data.
         /// </summary>
-        public const string CacheVariables_SessionGetOutput = @"
+        public const string CacheVars_SessionGetOutput = @"
             {
                 ""Tree"": {
                     ""Root"": {
@@ -627,7 +619,7 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
                                 }
                             }
                         },
-                        ""CacheVariables"": {
+                        ""CacheVars"": {
                             ""actionStatus"": ""C#|Session.GetOutput(\""Root_CollectDiagnosticsAction\"").Status""
                         },
                         ""ChildSelector"": [
@@ -650,22 +642,14 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
             }";
 
         /// <summary>
-        /// CacheVariables using UserContext.
+        /// CacheVars using UserContext.
         /// </summary>
-        public const string CacheVariables_UserContext = @"
+        public const string CacheVars_UserContext = @"
             {
                 ""Tree"": {
                     ""Root"": {
-                        ""Type"": ""Action"",
-                        ""Actions"": {
-                            ""Root_CollectDiagnosticsAction"": {
-                                ""Action"": ""CollectDiagnosticsAction"",
-                                ""Input"": {
-                                    ""Command"": ""TheCommand""
-                                }
-                            }
-                        },
-                        ""CacheVariables"": {
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
                             ""userName"": ""C#|UserContext.Name""
                         },
                         ""ChildSelector"": [
@@ -688,22 +672,14 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
             }";
 
         /// <summary>
-        /// CacheVariables are node-scoped — second node should NOT see first node's cache variables.
+        /// CacheVars are node-scoped — second node should NOT see first node's cache variables.
         /// </summary>
-        public const string CacheVariables_NodeScoped = @"
+        public const string CacheVars_NodeScoped = @"
             {
                 ""Tree"": {
                     ""Root"": {
-                        ""Type"": ""Action"",
-                        ""Actions"": {
-                            ""Root_CollectDiagnosticsAction"": {
-                                ""Action"": ""CollectDiagnosticsAction"",
-                                ""Input"": {
-                                    ""Command"": ""TheCommand""
-                                }
-                            }
-                        },
-                        ""CacheVariables"": {
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
                             ""firstNodeVar"": ""C#|99""
                         },
                         ""ChildSelector"": [
@@ -714,8 +690,8 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
                     },
                     ""SecondNode"": {
                         ""Type"": ""Selection"",
-                        ""CacheVariables"": {
-                            ""secondNodeCheck"": ""C#|Session.GetCache(\""firstNodeVar\"") == null ? \""isolated\"" : \""leaked\""""
+                        ""CacheVars"": {
+                            ""secondNodeCheck"": ""C#|Cache == null ? \""isolated\"" : \""leaked\""""
                         },
                         ""ChildSelector"": [
                             {
@@ -737,22 +713,14 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
             }";
 
         /// <summary>
-        /// CacheVariables with invalid expression — should throw EvaluateDynamicPropertyException.
+        /// CacheVars with invalid expression — should throw EvaluateDynamicPropertyException.
         /// </summary>
-        public const string CacheVariables_InvalidExpression = @"
+        public const string CacheVars_InvalidExpression = @"
             {
                 ""Tree"": {
                     ""Root"": {
-                        ""Type"": ""Action"",
-                        ""Actions"": {
-                            ""Root_CollectDiagnosticsAction"": {
-                                ""Action"": ""CollectDiagnosticsAction"",
-                                ""Input"": {
-                                    ""Command"": ""TheCommand""
-                                }
-                            }
-                        },
-                        ""CacheVariables"": {
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
                             ""badVar"": ""C#|NonExistentObject.Property""
                         },
                         ""ChildSelector"": [
@@ -768,29 +736,21 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
             }";
 
         /// <summary>
-        /// Multiple CacheVariables on the same node.
+        /// Multiple CacheVars on the same node.
         /// </summary>
-        public const string CacheVariables_Multiple = @"
+        public const string CacheVars_Multiple = @"
             {
                 ""Tree"": {
                     ""Root"": {
-                        ""Type"": ""Action"",
-                        ""Actions"": {
-                            ""Root_CollectDiagnosticsAction"": {
-                                ""Action"": ""CollectDiagnosticsAction"",
-                                ""Input"": {
-                                    ""Command"": ""TheCommand""
-                                }
-                            }
-                        },
-                        ""CacheVariables"": {
-                            ""a"": ""C#|10"",
-                            ""b"": ""C#|20"",
-                            ""sum"": ""C#|30""
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
+                            ""first"": ""C#|10"",
+                            ""second"": ""C#|20"",
+                            ""total"": ""C#|30""
                         },
                         ""ChildSelector"": [
                             {
-                                ""ShouldSelect"": ""C#|(int)Cache.a + (int)Cache.b == (int)Cache.sum"",
+                                ""ShouldSelect"": ""C#|(int)Cache.first + (int)Cache.second == (int)Cache.total"",
                                 ""Child"": ""Found""
                             },
                             {
@@ -808,22 +768,14 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
             }";
 
         /// <summary>
-        /// CacheVariables with string literal (non-Roslyn value).
+        /// CacheVars with string literal (non-Roslyn value).
         /// </summary>
-        public const string CacheVariables_StringLiteral = @"
+        public const string CacheVars_StringLiteral = @"
             {
                 ""Tree"": {
                     ""Root"": {
-                        ""Type"": ""Action"",
-                        ""Actions"": {
-                            ""Root_CollectDiagnosticsAction"": {
-                                ""Action"": ""CollectDiagnosticsAction"",
-                                ""Input"": {
-                                    ""Command"": ""TheCommand""
-                                }
-                            }
-                        },
-                        ""CacheVariables"": {
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
                             ""literal"": ""hello world""
                         },
                         ""ChildSelector"": [
@@ -846,9 +798,9 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
             }";
 
         /// <summary>
-        /// Schema for testing GetCache API.
+        /// CacheVars with ActionResponse object value — access nested property via Cache.
         /// </summary>
-        public const string CacheVariables_GetCacheApi = @"
+        public const string CacheVars_ObjectValue = @"
             {
                 ""Tree"": {
                     ""Root"": {
@@ -861,12 +813,12 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
                                 }
                             }
                         },
-                        ""CacheVariables"": {
-                            ""testVal"": ""C#|\""cached_value\""""
+                        ""CacheVars"": {
+                            ""response"": ""C#|Session.GetOutput(\""Root_CollectDiagnosticsAction\"")""
                         },
                         ""ChildSelector"": [
                             {
-                                ""ShouldSelect"": ""C#|Session.GetCache(\""testVal\"").ToString() == \""cached_value\"""",
+                                ""ShouldSelect"": ""C#|Cache.response != null"",
                                 ""Child"": ""Found""
                             },
                             {
@@ -883,6 +835,134 @@ namespace Microsoft.Forge.TreeWalker.UnitTests
                 }
             }";
 
-        #endregion CacheVariables Schemas
+        /// <summary>
+        /// CacheVars with boolean expression — use Cache.IsReady in ShouldSelect.
+        /// </summary>
+        public const string CacheVars_BooleanExpression = @"
+            {
+                ""Tree"": {
+                    ""Root"": {
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
+                            ""IsReady"": ""C#|true""
+                        },
+                        ""ChildSelector"": [
+                            {
+                                ""ShouldSelect"": ""C#|(bool)Cache.IsReady"",
+                                ""Child"": ""Ready""
+                            },
+                            {
+                                ""Child"": ""NotReady""
+                            }
+                        ]
+                    },
+                    ""Ready"": {
+                        ""Type"": ""Leaf""
+                    },
+                    ""NotReady"": {
+                        ""Type"": ""Leaf""
+                    }
+                }
+            }";
+
+        /// <summary>
+        /// CacheVars on multiple node types — Selection and Action.
+        /// </summary>
+        public const string CacheVars_AllNodeTypes = @"
+            {
+                ""Tree"": {
+                    ""Root"": {
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
+                            ""nodeType"": ""C#|\""selection\""""
+                        },
+                        ""ChildSelector"": [
+                            {
+                                ""ShouldSelect"": ""C#|Cache.nodeType.ToString() == \""selection\"""",
+                                ""Child"": ""ActionNode""
+                            },
+                            {
+                                ""Child"": ""End""
+                            }
+                        ]
+                    },
+                    ""ActionNode"": {
+                        ""Type"": ""Action"",
+                        ""Actions"": {
+                            ""ActionNode_CollectDiagnosticsAction"": {
+                                ""Action"": ""CollectDiagnosticsAction"",
+                                ""Input"": {
+                                    ""Command"": ""TheCommand""
+                                }
+                            }
+                        },
+                        ""CacheVars"": {
+                            ""nodeType"": ""C#|\""action\""""
+                        },
+                        ""ChildSelector"": [
+                            {
+                                ""ShouldSelect"": ""C#|Cache.nodeType.ToString() == \""action\"""",
+                                ""Child"": ""End""
+                            },
+                            {
+                                ""Child"": ""Fail""
+                            }
+                        ]
+                    },
+                    ""End"": {
+                        ""Type"": ""Leaf""
+                    },
+                    ""Fail"": {
+                        ""Type"": ""Leaf""
+                    }
+                }
+            }";
+
+        /// <summary>
+        /// CacheVars same-named property across two nodes — confirms isolation (second node re-defines same var).
+        /// </summary>
+        public const string CacheVars_SameNameAcrossNodes = @"
+            {
+                ""Tree"": {
+                    ""Root"": {
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
+                            ""status"": ""C#|\""first\""""
+                        },
+                        ""ChildSelector"": [
+                            {
+                                ""ShouldSelect"": ""C#|Cache.status.ToString() == \""first\"""",
+                                ""Child"": ""SecondNode""
+                            },
+                            {
+                                ""Child"": ""Fail""
+                            }
+                        ]
+                    },
+                    ""SecondNode"": {
+                        ""Type"": ""Selection"",
+                        ""CacheVars"": {
+                            ""status"": ""C#|\""second\""""
+                        },
+                        ""ChildSelector"": [
+                            {
+                                ""ShouldSelect"": ""C#|Cache.status.ToString() == \""second\"""",
+                                ""Child"": ""End""
+                            },
+                            {
+                                ""Child"": ""Fail""
+                            }
+                        ]
+                    },
+                    ""End"": {
+                        ""Type"": ""Leaf""
+                    },
+                    ""Fail"": {
+                        ""Type"": ""Leaf""
+                    }
+                }
+            }";
+
+        #endregion CacheVars Schemas
     }
 }
