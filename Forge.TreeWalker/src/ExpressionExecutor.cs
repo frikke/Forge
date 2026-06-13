@@ -79,7 +79,8 @@ namespace Microsoft.Forge.TreeWalker
             {
                 UserContext = userContext,
                 Session = session,
-                TreeInput = treeInput
+                TreeInput = treeInput,
+                Cache = null
             };
 
             this.scriptCache = scriptCache ?? new ConcurrentDictionary<string, Script<object>>();
@@ -209,6 +210,32 @@ namespace Microsoft.Forge.TreeWalker
         }
 
         /// <summary>
+        /// Gets the Cache object (the evaluated CacheVars result, or null).
+        /// </summary>
+        /// <returns>The cache object.</returns>
+        public object GetCache()
+        {
+            return this.parameters.Cache;
+        }
+
+        /// <summary>
+        /// Sets the Cache object to the evaluated CacheVars result.
+        /// </summary>
+        /// <param name="cache">The evaluated cache object from EvaluateDynamicProperty.</param>
+        public void SetCache(object cache)
+        {
+            this.parameters.Cache = cache;
+        }
+
+        /// <summary>
+        /// Clears the Cache, resetting it to null for the next node visit.
+        /// </summary>
+        public void ClearCache()
+        {
+            this.parameters.Cache = null;
+        }
+
+        /// <summary>
         /// This class defines the global parameter that will be passed into the Roslyn expression evaluator.
         /// 
         /// TODO: When Creating a Roslyn Script, the entire Assembly that the passed in GlobalsType resides in gets loaded.
@@ -232,6 +259,13 @@ namespace Microsoft.Forge.TreeWalker
             /// For Subroutines, this is evaluated from the SubroutineInput on the schema.
             /// </summary>
             public dynamic TreeInput { get; set; }
+
+            /// <summary>
+            /// The dynamic Cache object that holds node-scoped CacheVars.
+            /// Variables are set after actions complete and are available in ShouldSelect expressions.
+            /// Cache is cleared after SelectChild.
+            /// </summary>
+            public dynamic Cache { get; set; }
         }
 
         /// <summary>

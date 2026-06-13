@@ -58,6 +58,16 @@ namespace Microsoft.Forge.DataContracts
         [DataMember]
         public ChildSelector[] ChildSelector { get; private set; }
 
+        /// <summary>
+        /// Optional cache variables that are evaluated via EvaluateDynamicProperty after actions complete
+        /// and made available in ShouldSelect expressions via the Cache object (e.g., "Cache.myVar").
+        /// Each property key is the variable name, and the value is an expression
+        /// (e.g., "C#|Session.GetOutput(\"ActionKey\").Output.PropertyName").
+        /// Cache variables are scoped to the current node only — they are cleared after SelectChild.
+        /// </summary>
+        [DataMember]
+        public dynamic CacheVars { get; private set; }
+
         #region Properties used only by TreeNodeType.Action nodes
 
         /// <summary>
