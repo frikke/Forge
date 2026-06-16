@@ -284,6 +284,17 @@ namespace Microsoft.Forge.TreeWalker
         }
 
         /// <summary>
+        /// Evaluates the given CacheVars schema object and sets the result on the Cache.
+        /// This is useful for external UTs that need to pre-fill the Cache before evaluating ShouldSelect expressions.
+        /// </summary>
+        /// <param name="cacheVars">The CacheVars schema object to evaluate (typically from TreeNode.CacheVars).</param>
+        public async Task SetCache(dynamic cacheVars)
+        {
+            object cacheResult = await this.EvaluateDynamicProperty(cacheVars, null).ConfigureAwait(false);
+            this.expressionExecutor.SetCache(cacheResult);
+        }
+
+        /// <summary>
         /// Signals the WalkTree and VisitNode cancellation token sources to cancel.
         /// </summary>
         public void CancelWalkTree()
@@ -515,8 +526,17 @@ namespace Microsoft.Forge.TreeWalker
                 return null;
             }
 
-            // Return next child to visit, if possible.
-            return await this.SelectChild(treeNode).ConfigureAwait(false);
+            // Evaluate CacheVars after actions complete, before selecting child.
+            // Uses the same EvaluateDynamicProperty pattern as Properties/Input.
+            await this.SetCache(treeNode.CacheVars).ConfigureAwait(false);
+
+            // Select next child to visit.
+            string result = await this.SelectChild(treeNode).ConfigureAwait(false);
+
+            // Clear Cache after SelectChild — locks Cache access to ShouldSelect only.
+            this.expressionExecutor.ClearCache();
+
+            return result;
         }
 
         /// <summary>
