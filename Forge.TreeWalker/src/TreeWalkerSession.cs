@@ -9,6 +9,11 @@
 
 namespace Microsoft.Forge.TreeWalker
 {
+    using Microsoft.Forge.Attributes;
+    using Microsoft.Forge.DataContracts;
+    using Microsoft.Forge.TreeWalker.ForgeExceptions;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections;
     using System.Collections.Generic;
@@ -17,11 +22,6 @@ namespace Microsoft.Forge.TreeWalker
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.Forge.Attributes;
-    using Microsoft.Forge.DataContracts;
-    using Microsoft.Forge.TreeWalker.ForgeExceptions;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// The TreeWalkerSession tries to walk the given tree schema to completion.
@@ -162,6 +162,7 @@ namespace Microsoft.Forge.TreeWalker
             // Initialize properties from optional TreeWalkerParameters properties.
             GetActionsMapFromAssembly(parameters.ForgeActionsAssembly, out this.actionsMap);
             this.Parameters.ExternalExecutors = parameters.ExternalExecutors ?? new Dictionary<string, Func<string, CancellationToken, Task<object>>>();
+            this.Parameters.ActionFactory = parameters.ActionFactory ?? new DefaultForgeActionFactory();
             
             // TODO: Consider using a factory pattern to construct asynchronously.
             this.Parameters.TreeInput = this.GetOrCommitTreeInput(parameters.TreeInput).GetAwaiter().GetResult();
@@ -930,17 +931,8 @@ namespace Microsoft.Forge.TreeWalker
                 this.Parameters.RootSessionId
             );
 
-            // Instantiate the BaseAction-derived ActionType class and invoke the RunAction method on it.
-            object actionObject;
-            if (actionDefinition.ActionType == typeof(SubroutineAction))
-            {
-                // Special initializer is used for the native SubroutineAction.
-                actionObject = Activator.CreateInstance(actionDefinition.ActionType, this.Parameters);
-            }
-            else
-            {
-                actionObject = Activator.CreateInstance(actionDefinition.ActionType);
-            }
+            //Create the action object using the ActionFactory and kick off the action task.
+            BaseAction actionObject = this.Parameters.ActionFactory.CreateAction(actionDefinition.ActionType, this.Parameters);
 
             MethodInfo method = typeof(BaseAction).GetMethod("RunAction");
             Task<ActionResponse> runActionTask = (Task<ActionResponse>) method.Invoke(actionObject, new object[] { actionContext });

@@ -137,6 +137,13 @@ namespace Microsoft.Forge.TreeWalker
         /// </summary>
         public bool RetryCurrentTreeNodeActions { get; set; }
 
+        /// <summary>
+        /// The factory used to create ForgeAction instances.
+        /// Implement <see cref="IForgeActionFactory"/> to integrate a dependency injection container of your choice.
+        /// When it is null, Forge will use the <see cref="DefaultForgeActionFactory"/> which creates instances via Activator.CreateInstance.
+        /// </summary>
+        public IForgeActionFactory ActionFactory { get; set; }
+
         #endregion
 
         #region Constructor with ITreeWalkerCallbacks, [DEPRECATED]
